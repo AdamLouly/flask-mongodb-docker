@@ -1,6 +1,8 @@
 import unittest
 import os
 from app import app
+import json
+from config import client
 
 class BasicTests(unittest.TestCase):
      
@@ -13,7 +15,7 @@ class BasicTests(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
-        self.app = app.test_client() 
+        self.app = app.test_client()
         # Disable sending emails during unit testing
         self.assertEqual(app.debug, False)
  
@@ -26,10 +28,20 @@ class BasicTests(unittest.TestCase):
 #### tests ####
 ###############
  
-    def test_main_page(self):
+    def test_get_initial_response(self):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
- 
+
+    def test_create_user(self):
+        user = {
+            "username":"test",
+            "password":"testpass"
+        }
+        response = self.app.post('/api/v1/create',data = json.dumps(user),content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        response = self.app.post('/api/v1/create',content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
  
 if __name__ == "__main__":
     unittest.main()
